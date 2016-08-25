@@ -15,13 +15,12 @@
 # limitations under the License.
 #
 import webapp2
-from caesar import encrypt
 
 page_header = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Signup</title>
+    <title>Caesar</title>
     <style type="text/css">
         .error {
             color: red;
@@ -30,7 +29,7 @@ page_header = """
 </head>
 <body>
     <h1>
-        <a href="/">Signup</a>
+        <a href="/">Caesar</a>
     </h1>
 """
 
@@ -40,20 +39,47 @@ page_footer = """
 </html>
 """
 
+
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         encrypted = self.request.get("encrypted")
 
         ceasar_form = """
             <form method="POST">
-                <input type="text" name="rot" id="rot">
-                <textarea name="text" id="text">""" + encrypted + """</textarea>
+                <label for="rot">Rotation: </label>
+                <input type="text" name="rot" id="rot"><br><br>
+                <label for="text">Text to encrypt:</label><br>
+                <textarea name="text" id="text" style="height:200px;width:400px;">{}</textarea><br><br>
+                <input type="submit" value="Submit">
             </form>
-        """
+        """.format(encrypted)
 
-        self.response.write(page_header + caesar_form + page_footer)
+        self.response.write(page_header + ceasar_form + page_footer)
 
     def post(self):
+        def alphabet_position(char):
+        	if char.isupper():
+        		return ord(char) - 65
+        	if char.islower():
+        		return ord(char) - 97
+
+        def rotate_character(char, rot):
+        	if not char.isalpha():
+        		return char
+        	if char.isupper():
+        		return chr(((alphabet_position(char) + rot) % 26) + 65)
+        	if char.islower():
+        		return chr(((alphabet_position(char) + rot) % 26) + 97)
+
+        def encrypt(text,rot):
+        	encrypted_text = ""
+        	for char in text:
+        		if char == " ":
+        			encrypted_text += char
+        		else: encrypted_text += rotate_character(char,int(rot))
+        	return encrypted_text
+
         rot = self.request.get("rot")
         text = self.request.get("text")
 
